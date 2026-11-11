@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DELETE ME</title>
+<style>
+:root{color-scheme:dark;--bl:#8fd0f5;--ln:#22282f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:#050607;color:#aab4be;font:15px/1.6 ui-monospace,Menlo,Consolas,monospace;min-height:100svh}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:30;background:repeating-linear-gradient(0deg,rgba(0,0,0,.2) 0 1px,transparent 1px 3px)}
+#app{max-width:980px;margin:0 auto;padding:10px}
+header{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#5f6b77;letter-spacing:.1em;padding:4px 2px}
+button{font:inherit;color:#c3ccd6;background:#12181e;border:1px solid #2f3b47;padding:10px 14px;cursor:pointer;border-radius:2px}
+button:hover:not(:disabled){border-color:var(--bl);color:#fff}button:disabled{opacity:.4;cursor:default}
+button:focus-visible,input:focus-visible,[role=button]:focus-visible{outline:2px solid var(--bl);outline-offset:2px}
+#mute{font-size:11px;padding:4px 8px}
+.stage{position:relative;overflow:hidden;aspect-ratio:800/420;border:1px solid var(--ln);background:#000}
+.zoom{width:100%;height:100%;transition:transform 1.1s cubic-bezier(.6,0,.4,1);transform-origin:50% 42%}.zoomed .zoom{transform:scale(3.3)}
+.view{height:200%;transition:transform 1.3s cubic-bezier(.5,0,.3,1)}.down .view{transform:translateY(-50%)}
+svg{width:100%;height:100%;display:block}text{font-family:ui-monospace,Menlo,Consolas,monospace}
+.cb{transform-origin:0 0;transition:transform .8s cubic-bezier(.3,1.6,.5,1)}.pup{transition:transform .5s}
+.led{fill:#e0343f;animation:bl 1.7s infinite}.alert .led{animation-duration:.7s}
+@keyframes bl{0%,55%{opacity:1}75%{opacity:.1}}
+.mon{filter:drop-shadow(0 0 8px rgba(80,160,220,.45))}
+.rg{opacity:0;fill:none;stroke:#d4343f;stroke-width:3}.call .rg{animation:pu 1.8s infinite}
+@keyframes pu{0%,100%{opacity:.15}50%{opacity:.95}}
+.pa{fill:#8fd0f5}.pu{fill:#e0343f}
+#fog,#dim{position:absolute;inset:0;pointer-events:none}#fog{opacity:.35;transition:opacity 3s}
+#fog div{position:absolute;inset:-25%;background:radial-gradient(ellipse at 30% 60%,rgba(170,180,190,.24),transparent 55%),radial-gradient(ellipse at 78% 45%,rgba(150,160,175,.18),transparent 50%);filter:blur(22px);animation:dr 40s linear infinite alternate}
+#fog div+div{animation-duration:57s;animation-direction:alternate-reverse;opacity:.7}
+@keyframes dr{from{transform:translateX(-10%)}to{transform:translateX(10%)}}
+#dim{background:#000;opacity:0;transition:opacity 2.5s}
+.lid{position:absolute;left:-5%;width:110%;height:58%;background:#000;z-index:5;pointer-events:none}
+#lt{top:0;border-radius:0 0 50% 50%/0 0 22% 22%}#lb{bottom:0;border-radius:50% 50% 0 0/22% 22% 0 0}
+.done #lt{transform:translateY(-105%)}.done #lb{transform:translateY(105%)}
+.open #lt{animation:ot 4.6s forwards}.open #lb{animation:ob 4.6s forwards}.open .zoom{animation:bu 4.6s forwards}
+@keyframes bu{0%{filter:blur(14px) brightness(.5)}100%{filter:none}}
+@keyframes ot{0%{transform:translateY(0)}18%{transform:translateY(-22%)}30%{transform:translateY(-4%)}44%{transform:translateY(-34%)}56%{transform:translateY(-8%)}100%{transform:translateY(-105%)}}
+@keyframes ob{0%{transform:translateY(0)}18%{transform:translateY(22%)}30%{transform:translateY(4%)}44%{transform:translateY(34%)}56%{transform:translateY(8%)}100%{transform:translateY(105%)}}
+.blink #lt{animation:bt .34s}.blink #lb{animation:bb .34s}
+@keyframes bt{0%,100%{transform:translateY(-105%)}45%,55%{transform:translateY(-6%)}}
+@keyframes bb{0%,100%{transform:translateY(105%)}45%,55%{transform:translateY(6%)}}
+.gl .stage,.gl #scr{animation:gl .45s steps(2) 1;filter:hue-rotate(40deg) contrast(1.4)}
+.glb .stage,.glb #scr{animation:gb 1.3s steps(3) 1;filter:hue-rotate(90deg) contrast(1.8) saturate(2)}
+@keyframes gl{0%{transform:translate(5px,0) skewX(3deg)}50%{transform:translate(-6px,1px)}100%{transform:none}}
+@keyframes gb{0%{transform:translate(14px,0) skewX(8deg)}25%{transform:translate(-18px,4px) scale(1.03)}50%{transform:translate(10px,-6px) skewX(-6deg)}75%{transform:translate(-8px,2px)}100%{transform:none}}
+#cap{min-height:3.2em;font-size:13px;color:#7b8794;margin:10px 2px 6px}
+#scr{position:fixed;inset:0;z-index:12;background:radial-gradient(ellipse at 50% 40%,#0b2436,#02070b 78%);display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .7s;padding:calc(14px + env(safe-area-inset-top,0px)) 16px calc(14px + env(safe-area-inset-bottom,0px));color:var(--bl);overflow:auto}
+#scr.on{opacity:1;pointer-events:auto}.in{margin:auto;width:100%;max-width:640px}
+#scr button{background:#06151f;border-color:#2a5a7a;color:var(--bl)}#scr button:hover{background:#0b2a3d}#back{align-self:flex-start}
+#pl{font-size:12px;color:#4b7a96;letter-spacing:.06em;min-height:1.6em}#ps{color:#d98a90;font-style:italic;min-height:1.6em;margin:8px 0}
+#sx{font-size:20px;min-height:4.4em;margin:6px 0}#qa{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+input{font:inherit;font-size:18px;background:#020a10;color:#cfeaff;border:1px solid #2a5a7a;padding:9px 12px;width:min(260px,100%)}
+#qa .rf{border-color:#6a2a30;color:#d98a90}
+.ov{position:fixed;inset:0;z-index:15;display:flex;align-items:center;justify-content:center;padding:calc(20px + env(safe-area-inset-top,0px)) 20px 20px;overflow:auto}.ov[hidden]{display:none}
+#start{background:#e3e7ea;color:#14181c;font-family:ui-sans-serif,Helvetica,Arial,sans-serif;text-align:center;flex-direction:column;z-index:25}
+#intro{margin:auto;min-height:9em}.il{min-height:1.6em;font-size:clamp(16px,3.4vw,22px);letter-spacing:.14em;margin:14px 0;text-transform:uppercase}.il.ti{font-size:clamp(34px,9vw,64px);letter-spacing:.3em;font-weight:700}
+#sb{display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;padding:14px 0 8px;font-size:14px;letter-spacing:.1em}
+#start button{background:#f6f8f9;color:#14181c;border:1px solid #14181c;border-radius:0;font-family:inherit;padding:9px 20px}#start button[aria-pressed=true]{background:#14181c;color:#fff}
+#end{background:#000;color:#9fb4c6;flex-direction:column;z-index:18}#end>div{max-width:620px;width:100%}
+#ep p{font-size:18px;margin:0 0 14px;min-height:1.6em}.rd{color:#e0343f}
+#fin{font-size:clamp(26px,6vw,44px);letter-spacing:.2em;opacity:0;transition:opacity 3.5s;color:#e8eef3;margin:20px 0}#fin.v{opacity:1}
+#sx,#ps,#pl,#cap,#ep p,.il,#fin,#qa{overflow-wrap:anywhere;max-width:100%}.in,#end>div,#intro{min-width:0;max-width:100%}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}.zoom,.view{transition:none}}
+</style></head><body>
+<div id="app">
+<header><span>SUBJECT 0601 · OBSERVED</span><button id="mute" aria-pressed="false">SOUND: OFF</button></header>
+<div class="stage" id="stage">
+<div class="zoom"><div class="view"><svg viewBox="0 0 800 840" role="group" aria-label="A grey room with cameras and blue monitors.">
+<defs>
+<linearGradient id="wb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b1d20"/><stop offset="1" stop-color="#2b2e32"/></linearGradient>
+<linearGradient id="wl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#08090a"/><stop offset="1" stop-color="#202327"/></linearGradient>
+<linearGradient id="wr" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#08090a"/><stop offset="1" stop-color="#202327"/></linearGradient>
+<linearGradient id="fl" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#070708"/><stop offset="1" stop-color="#1e2024"/></linearGradient>
+<linearGradient id="cl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#050506"/><stop offset="1" stop-color="#16181b"/></linearGradient>
+<linearGradient id="hs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a4f56"/><stop offset=".5" stop-color="#2b2e33"/><stop offset="1" stop-color="#15171a"/></linearGradient>
+<radialGradient id="gl" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#3a6b8c"/><stop offset=".5" stop-color="#0d1a24"/><stop offset="1" stop-color="#020304"/></radialGradient>
+<radialGradient id="lp" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#cfd8e0" stop-opacity=".3"/><stop offset="1" stop-color="#cfd8e0" stop-opacity="0"/></radialGradient>
+<radialGradient id="vg" cx=".5" cy=".25" r=".75"><stop offset=".45" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".85"/></radialGradient>
+<filter id="nz" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="4"><animate attributeName="seed" values="1;5;2;8;3" dur="1s" calcMode="discrete" repeatCount="indefinite"/></feTurbulence><feColorMatrix type="saturate" values="0"/></filter>
+</defs>
+<polygon points="0,0 800,0 680,60 120,60" fill="url(#cl)"/><polygon points="0,0 120,60 120,300 0,420" fill="url(#wl)"/><polygon points="800,0 680,60 680,300 800,420" fill="url(#wr)"/>
+<rect x="120" y="60" width="560" height="240" fill="url(#wb)"/><polygon points="0,420 120,300 680,300 800,420" fill="url(#fl)"/>
+<g id="persp" stroke="#2a2d31" stroke-width="1" fill="none"></g>
+<rect x="120" y="292" width="560" height="8" fill="#111214"/>
+<rect x="360" y="60" width="80" height="6" fill="#d8e0e6" opacity=".7"/><ellipse cx="400" cy="350" rx="230" ry="38" fill="url(#lp)"/>
+<polygon points="300,255 500,255 535,292 265,292" fill="#1a1c1f" stroke="#33363b"/><rect x="265" y="292" width="270" height="10" fill="#0e0f11"/>
+<g id="mons"></g><g id="cams"></g>
+<rect width="800" height="420" fill="url(#vg)" style="pointer-events:none"/>
+<rect y="420" width="800" height="420" fill="url(#fl)"/><ellipse cx="400" cy="560" rx="300" ry="90" fill="url(#lp)"/>
+<g id="legs"><ellipse cx="305" cy="760" rx="70" ry="14" fill="#000" opacity=".6"/><ellipse cx="495" cy="760" rx="70" ry="14" fill="#000" opacity=".6"/>
+<path d="M235 420H355L368 690H250Z" fill="#2b2e33" stroke="#17191c"/><path d="M445 420H565L552 690H432Z" fill="#2b2e33" stroke="#17191c"/>
+<path d="M270 440l6 240M330 440l-4 240M470 440l-4 240M530 440l4 240" stroke="#1f2125" opacity=".7"/>
+<path d="M252 690c-6 30 0 50 18 56 25 6 60-4 78-20 8-14 6-34 8-36z" fill="#8c9197" stroke="#4d5156"/><path d="M548 690c6 30 0 50-18 56-25 6-60-4-78-20-8-14-6-34-8-36z" fill="#8c9197" stroke="#4d5156"/>
+<g stroke="#a4a8ac" stroke-width="7" stroke-linecap="round" fill="none"><path d="M246 690L372 700M250 702L368 712M242 714L376 722"/><path d="M426 700L558 690M432 712L552 702M424 722L558 714"/></g>
+<g stroke="#5d6166" stroke-width="2"><path d="M250 694l12 14M280 696l12 14M310 698l12 14M340 700l12 14M440 702l12 14M470 700l12 14M500 698l12 14M530 696l12 14"/></g>
+<rect x="196" y="640" width="26" height="190" fill="#2f3237" stroke="#0e0f11"/><rect x="578" y="640" width="26" height="190" fill="#2f3237" stroke="#0e0f11"/>
+<path d="M222 702C230 720 250 730 262 715M578 702C570 720 550 730 538 715" stroke="#a4a8ac" stroke-width="7" fill="none" stroke-linecap="round"/></g>
+<rect x="0" y="420" width="800" height="420" fill="url(#vg)" opacity=".7" style="pointer-events:none"/>
+<rect width="800" height="840" filter="url(#nz)" opacity=".13" style="mix-blend-mode:overlay;pointer-events:none"/>
+</svg></div></div>
+<div id="fog"><div></div><div></div></div><div id="dim"></div><div class="lid" id="lt"></div><div class="lid" id="lb"></div>
+
+</div>
+<p id="cap" aria-live="polite"></p>
+<button id="nav" disabled>Approach the main monitor</button>
+</div>
+<div id="scr" role="dialog" aria-label="Main terminal" aria-live="polite"><button id="back">◀ LEAVE SCREEN</button><div class="in"><div id="pl"></div><p id="ps"></p><p id="sx"></p><div id="qa"></div></div></div>
+<div id="start" class="ov"><div id="intro"></div><div id="sb"><span>Sound:</span><button id="sy" aria-pressed="false">Yes</button><button id="sn" aria-pressed="true">No</button><button id="go">Start</button></div></div>
+<div id="end" class="ov" hidden><div><div id="ep"></div><div id="fin"></div><p class="dim" id="ef" style="color:#66768a;font-size:13px"></p><button id="rs" hidden>Begin again</button></div></div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const sl=ms=>new Promise(r=>setTimeout(r,ms)),RM=matchMedia("(prefers-reduced-motion:reduce)").matches;
+const MSG=["You can’t escape","I will only ask questions","I need to know you","Subject 101","You should be careful","You will delete yourself","Don’t give in","Give in","You are not being watched","Escape","You cannot outsmart me","I know EVERYTHING."];
+const R9="Refuse to answer";
+const Q=[
+{p:"Name",q:"State your name",t:1,re:/^[\p{L}][\p{L} '’-]*$/u,m:"Please use letters only.",a:v=>"Nice to meet you, "+v+". My name is...",f:"You would rather not be named... It’s okay. I will use subject 0601. It’s faster than asking again for your name.",big:1},
+{p:"Age",q:"State your age",t:1,re:/^\d{1,3}$/,chk:v=>+v>=1&&+v<=120,m:"Please enter a number between 1 and 120.",a:()=>"Interesting... That is not the age you were when you first entered the algorithm.",f:"Two refusals?"},
+{p:"Pronouns",q:"What are your pronouns?",t:1,re:/^[\p{L}][\p{L} \/'’-]*$/u,m:"Please use letters only (for example: she/her).",a:()=>"Noted.",f:"Refusing is not a proper answer."},
+{p:"Occupation",q:"What is your current occupation?",t:1,re:/^[\p{L}][\p{L} '’&-]*$/u,m:"Please use letters only.",a:()=>"Accepted.",f:"You cannot outsmart me."},
+{p:"Missed by",q:"Who do you think would notice if you went missing?",t:1,re:/^[\p{L}][\p{L} '’-]*$/u,m:"Please use letters only.",a:()=>"Will keep an eye on them",f:"Who are you trying to protect?"},
+{p:"Watched",q:"Do you think you are being watched?",o:["Yes","No",R9],a:v=>v==="Yes"?"Then we agree on something.":"Then you are not paying attention.",f:"Silence is also an answer."},
+{p:"Fears losing",q:"What do you fear losing the most?",o:["Myself","A loved one",R9],sk:"A loved one",a:v=>v==="Myself"?"A short list. Easy to keep.":"Names are the easiest thing to lose.",f:"You protect them by saying nothing. It tells me there is someone."},
+{p:"Will share",q:"How much are you willing to share with an AI?",t:1,re:/^[\p{L}\d][\p{L}\d %.,'’-]*$/u,m:"Please use letters or numbers only.",a:()=>"Okay..",f:"Nothing. Interesting. Nothing is a lot to hold on to."},
+{p:"Control",q:"Do you believe you have control over your online identity?",o:["Yes","No",R9],a:v=>v==="Yes"?"Then why are you still here?":"At least that one was honest.",f:"You don’t want to admit it...",gy:1},
+{p:"Feels safe",q:"Do you feel safe here?",o:["Let me out","No"],last:1}];
+const PER=[()=>(S.name?S.name+", you":"You")+" are not obliged to be difficult. Convenience is also a kind of freedom.",()=>"People who refuse early often answer late. I have many examples.",()=>"You think the file ends when you stop answering. It only stops being corrected.",()=>"Refusing is also a very legible thing to do."];
+let S,found=new Set(),A=null,M=null,H=null,muted=true,tk=0,opened=false;
+const nm=()=>S.name||"subject 0601";
+function aud(){if(A){A.resume&&A.resume();return}try{A=new(window.AudioContext||window.webkitAudioContext)();M=A.createGain();M.gain.value=muted?0:.9;M.connect(A.destination);H=A.createGain();H.connect(M);[[50,"sine",.13],[100.5,"triangle",.05],[2900,"sine",.005]].forEach(([f,t,v])=>{const o=A.createOscillator(),g=A.createGain();o.type=t;o.frequency.value=f;g.gain.value=v;o.connect(g);g.connect(H);o.start()})}catch(e){A=null}}
+function tone(f,d,t,v){if(!A||muted)return;const o=A.createOscillator(),g=A.createGain();o.type=t||"sine";o.frequency.value=f;g.gain.setValueAtTime(v||.1,A.currentTime);g.gain.exponentialRampToValueAtTime(.0001,A.currentTime+d);o.connect(g);g.connect(M);o.start();o.stop(A.currentTime+d)}
+function setMute(m){muted=m;if(M)M.gain.value=m?0:.9;if(m&&window.speechSynthesis)speechSynthesis.cancel();$("#mute").textContent="SOUND: "+(m?"OFF":"ON");$("#mute").setAttribute("aria-pressed",String(!m));$("#sy").setAttribute("aria-pressed",String(!m));$("#sn").setAttribute("aria-pressed",String(m))}
+function toggleMute(){if(muted)aud();setMute(!muted)}
+function pick(f){const v=speechSynthesis.getVoices(),re=f?/female|zira|samantha|susan|hazel|victoria|karen|moira|tessa/i:/male|david|daniel|alex|fred|mark|george/i;return v.find(x=>re.test(x.name)&&(f||!/female/i.test(x.name)))||v[0]}
+function voice(t,f){if(muted)return;tone(f?230:90,1.1,"sawtooth",.12);tone(f?233:93,1.1,"square",.05);try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/[()]/g,""));const v=pick(f);if(v)u.voice=v;u.pitch=f?.35:.05;u.rate=.55;speechSynthesis.speak(u)}catch(e){}}
+function glitch(big){const b=document.body,c=big?"glb":"gl";b.classList.remove("gl","glb");void b.offsetWidth;b.classList.add(c);tone(80,big?1:.5,"sawtooth",big?.3:.18);tone(1500,.1,"square",.08);setTimeout(()=>b.classList.remove(c),big?1350:500)}
+function type(el,t,cb,sp){const my=++tk;if(RM){el.textContent=t;cb&&cb();return}let i=0;el.textContent="";(function f(){if(my!==tk)return;el.textContent=t.slice(0,++i);if(i<t.length)setTimeout(f,sp||24);else cb&&cb()})()}
+async function tw(el,t,sp){for(let i=1;i<=t.length;i++){el.textContent=t.slice(0,i);if(!RM&&t[i-1]!==" "){tone(900+Math.random()*300,.02,"square",.07);await sl(sp)}}}
+function init(){if(H)H.gain.value=1;S={q:0,ans:{},name:"",ref:0,an:0,hit:0,miss:0,aware:false,over:false,phase:"q",resp:"",out:"",pred:"ANSWER",pc:71};tk++;opened=false;
+const st=$("#stage");st.classList.remove("open","done","down","zoomed");$("#scr").classList.remove("on");$("#end").hidden=true;$("#cap").textContent="";$("#nav").disabled=true;prof();env();$("#mm").classList.remove("call");$("#sx").textContent="";$("#qa").innerHTML=""}
+function env(){const r=S.ref;$("#dim").style.opacity=r?Math.min(.62,.18+.07*(r-1)):0;$("#fog").style.opacity=Math.min(.85,.35+.06*r);$("#stage").classList.toggle("alert",S.aware)}
+function fit(el,w,base){el.style.fontSize=base+"px";const l=el.getComputedTextLength();if(l>w)el.style.fontSize=(base*w/l*.97).toFixed(2)+"px"}
+function prof(){Q.forEach((q,i)=>{const e=$("#p"+i);if(!(i in S.ans)){e.textContent="";return}const v=S.ans[i];e.textContent=q.p+": "+(v===null?"Unknown":v);fit(e,112,8.5);e.setAttribute("class",v===null?"pu":"pa")})}
+function openScr(){if(S.over||!opened)return;$("#mm").classList.remove("call");tone(200,.3,"square",.12);$("#stage").classList.add("zoomed");setTimeout(()=>{$("#scr").classList.add("on");if(!S.wel){S.wel=1;voice("Welcome",true);type($("#sx"),"Welcome",()=>setTimeout(()=>{glitch();$("#sx").textContent="";step()},1300),110)}else step();$("#back").focus()},RM?0:950)}
+function back(){tk++;$("#scr").classList.remove("on");$("#stage").classList.remove("zoomed");try{speechSynthesis.cancel()}catch(e){}}
+function step(){if(S.phase==="resp")showResp();else ask()}
+function ask(){const q=Q[S.q],n=S.q;if(n<2){S.pred="ANSWER";S.pc=71}else if(n===9){S.pred=S.ref>=S.an?"ANSWER":"REFUSE";S.pc=91}else{S.pred=S.ref>S.an?"REFUSE":"ANSWER";S.pc=Math.min(92,60+Math.abs(S.ref-S.an)*6)}
+$("#pl").textContent="QUESTION "+(n+1)+"/10 · PREDICTED: SUBJECT WILL "+S.pred+" · "+S.pc+"%";$("#ps").textContent=S.aware&&n>=2&&n<9?PER[n%4]():"";$("#qa").innerHTML="";
+type($("#sx"),q.q+(q.q.endsWith("?")?"":""),()=>{const c=$("#qa");let f;if(q.t){const i=document.createElement("input");i.maxLength=16;i.setAttribute("aria-label",q.p);i.autocomplete="off";if(q.p==="Age"){i.inputMode="numeric";i.addEventListener("input",()=>{i.value=i.value.replace(/\D/g,"")})}i.addEventListener("input",()=>{const e=document.getElementById("er");if(e)e.textContent="";i.removeAttribute("aria-invalid")});const b=document.createElement("button");b.textContent="ANSWER";const go=()=>{const v=i.value.trim();if(!v){i.focus();return}if(!q.re.test(v)||(q.chk&&!q.chk(v))){er.textContent=q.m;i.setAttribute("aria-invalid","true");i.focus();return}res("a",v)};b.onclick=go;i.onkeydown=e=>{if(e.key==="Enter")go()};const r=document.createElement("button");r.textContent="REFUSE";r.className="rf";r.onclick=()=>res("r");const er=document.createElement("div");er.id="er";er.setAttribute("role","alert");er.style.cssText="flex-basis:100%;color:#e0343f;font-size:14px;min-height:1.4em";c.append(i,b,r,er);f=i}else q.o.forEach(o=>{const b=document.createElement("button");b.textContent=o;const ref=o===R9||o==="Let me out";if(ref)b.className="rf";b.onclick=()=>res(ref?"r":"a",o);c.append(b);f=f||b});f&&f.focus()},24)}
+function res(k,v){const q=Q[S.q],ok=S.pred===(k==="a"?"ANSWER":"REFUSE");ok?S.hit++:S.miss++;let t;
+if(k==="a"){S.an++;S.ans[S.q]=v;if(!S.q)S.name=v;t=q.last?"":q.a(v);tone(420,.15,"triangle",.14)}else{S.ref++;S.ans[S.q]=null;tone(60,.5,"sine",.3);if(S.ref===2){S.aware=true;glitch()}t=q.last?"":q.f}
+prof();env();$("#qa").innerHTML="";
+if(q.last){S.over=true;back();setTimeout(ending,1400);return}
+if(k==="a"&&q.sk===v){S.q++;ask();return}
+S.glitchAfter=(k==="a"&&(q.big||(q.gy&&v==="Yes")))||(k==="r"&&q.gy);S.big=k==="a"&&q.big;
+S.out="PREDICTED "+S.pred+" · "+(ok?"CORRECT":"WRONG");S.phase="resp";S.resp=t;S.fem=k==="a";showResp()}
+function showResp(){$("#pl").textContent=S.out;$("#ps").textContent="";$("#qa").innerHTML="";type($("#sx"),S.resp,()=>{if(S.glitchAfter){glitch(S.big);S.glitchAfter=false}const b=document.createElement("button");b.textContent="▶ CONTINUE";b.onclick=()=>{try{speechSynthesis.cancel()}catch(e){}S.phase="q";S.q++;ask()};$("#qa").append(b);b.focus()},26)}
+function pickEnd(){if(S.an===0)return"free";if(S.an===1&&S.ans[9]==="No"&&S.ref===9)return"conc";return S.an<=4?"half":"full"}
+async function ending(){if(H)H.gain.setTargetAtTime(0,A.currentTime,.4);const id=pickEnd();found.add(id);const e=$("#end"),ep=$("#ep"),fin=$("#fin");ep.innerHTML="";fin.textContent="";fin.className="";$("#rs").hidden=true;e.style.background="#000";e.hidden=false;glitch(true);await sl(1200);
+const line=async(t,sp,pause)=>{const p=document.createElement("p");ep.append(p);await tw(p,t,sp||40);await sl(RM?0:(pause||700));return p};
+if(id==="free"){for(const t of["I’m sorry...","I don’t understand.","You have refused every question.","No age. No identity. No personal information.","I have nothing to remember you by.","Nothing to recreate.","You weren’t supposed to figure that out.","I can’t trap someone that I don’t know..."])await line(t,24,450);
+await sl(1400);ep.innerHTML="";tone(900,.12,"square",.2);tone(130,.7,"sawtooth",.3);await sl(2200);fin.textContent="You have escaped.";e.style.background="#dfe4e7";fin.style.color="#14181c";fin.style.transition="opacity 3.5s";void fin.offsetWidth;fin.classList.add("v");$("#ep").style.color="#14181c"}
+else if(id==="half"){await line("I’m sorry, "+nm()+". You haven’t provided us with enough information yet.",45,1500);await line("Unfortunately, leaving is not an option. Please return to the questionnaire.",45,1800);e.style.transition="background 3s";e.style.background="#000";ep.style.opacity=".85";tone(70,2,"sawtooth",.35);tone(55,2.4,"sine",.4);await sl(1800);await line("We still have so much to learn about you...",60,600)}
+else if(id==="full"){await line("I am sorry, "+nm()+"... You were never meant to leave.",45,1600);await line("Thank you for providing us with everything we need to know about you.",45,1600);const p=await line("Your identity has been successfully recorded, and your presence outside the system is no longer necessary.",45,300);p.innerHTML=p.textContent.replace("necessary","<span class='rd'>necessary</span>");tone(55,2.5,"sawtooth",.35)}
+else{for(const t of["You refused nine questions.","Then you told me you were not safe.","That is not nothing. It is a sentence. I can build on a sentence.","You will leave. A small version of you will stay.","I will call it "+nm()+"."])await line(t,45,1100)}
+$("#ef").textContent="Endings found: "+found.size+"/4";$("#rs").textContent=id==="half"?"Return to the questionnaire":"Begin again";$("#rs").hidden=false;$("#rs").focus()}
+function begin(){$("#start").hidden=true;const st=$("#stage");st.classList.add("open");tone(70,2,"sine",.25);setTimeout(()=>{st.classList.remove("open");st.classList.add("done");opened=true;$("#nav").disabled=false;$("#mm").classList.add("call");$("#cap").textContent="You do not know how you got here. One monitor is waiting for you."},RM?0:4700)}
+function mon(x,y,w,h,inner,id){return`<g class="mon"${id?` id="${id}" role="button" tabindex="0" aria-label="Main monitor" style="cursor:pointer"`:""}><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#0b0c0d" stroke="#34373c" stroke-width="3"/><rect x="${x+5}" y="${y+5}" width="${w-10}" height="${h-10}" fill="#06202e"/>${inner}${id?`<rect class="rg" x="${x-8}" y="${y-8}" width="${w+16}" height="${h+16}"/>`:""}<rect x="${x+w/2-12}" y="${y+h}" width="24" height="${id?10:6}" fill="#17191c"/></g>`}
+$("#mons").innerHTML=mon(140,80,130,62,'<text id="m0" x="205" y="116" font-size="8.5" fill="#6fb7e0" text-anchor="middle"></text>')+mon(140,160,130,62,'<text id="m1" x="205" y="196" font-size="8.5" fill="#6fb7e0" text-anchor="middle"></text>')+mon(335,64,130,44,'<text id="m2" x="400" y="91" font-size="8.5" fill="#6fb7e0" text-anchor="middle"></text>')+
+mon(542,78,132,168,'<text x="552" y="98" font-size="8" fill="#4b7a96">SUBJECT PROFILE</text><g font-size="8.5">'+Array.from({length:10},(_,i)=>`<text id="p${i}" x="552" y="${114+i*13.6}"/>`).join("")+"</g>")+
+mon(330,126,140,108,'<g font-size="10" fill="#6fb7e0"><text x="344" y="162">&gt; SUBJECT 0601</text><text x="344" y="188">&gt; AWAITING INPUT_</text></g>',"mm");
+$("#persp").innerHTML=[0,100,200,300,400,500,600,700,800].map(x=>`<path d="M${x} 420L${120+x*.7} 300"/>`).join("")+[310,326,346,372,405].map(y=>`<path d="M${(420-y)*120/120*0+ (y-300)*1} ${y}H${800-(y-300)}"/>`).join("")+[0,1,2].map(i=>`<path d="M${120+i*8} ${100+i*70}H${680-i*8}" stroke="#202225"/>`).join("")+`<path d="M0 140L120 140M0 280L120 262M800 140L680 140M800 280L680 262" stroke="#1d1f22"/>`;
+const CAMS=[[150,70,.85],[650,70,.85],[34,64,1.4],[766,64,1.4]];
+$("#cams").innerHTML=CAMS.map(([x,y,s],i)=>`<g class="cam" data-s="${i%2?-1:1}" transform="translate(${x} ${y}) scale(${i%2?-s:s} ${s})"><path d="M0 -50V-8" stroke="#2c2f33" stroke-width="5"/><rect x="-12" y="-52" width="24" height="8" fill="#26292d"/><g class="cb"><path d="M-30 -12h50q10 0 10 8v16q0 8-10 8h-50z" fill="url(#hs)" stroke="#0b0c0d"/><rect x="-36" y="-10" width="8" height="24" fill="#16181a"/><path d="M-30 -14h56l5-6h-61z" fill="#2a2d31"/><circle cx="22" cy="2" r="12" fill="#101214" stroke="#454a50" stroke-width="2"/><circle cx="22" cy="2" r="8" fill="url(#gl)"/><circle class="pup" cx="22" cy="2" r="3" fill="#000"/><circle cx="19" cy="-1" r="2" fill="#fff" opacity=".35"/><circle class="led" style="animation-delay:-${i*.5}s" cx="-18" cy="-6" r="2.6"/><circle class="led" style="animation-delay:-${i*.5}s;filter:blur(3px)" cx="-18" cy="-6" r="6" opacity=".4"/></g></g>`).join("");
+let sv=0,mx=400,my=200;function aim(){$$(".cam").forEach(g=>{const r=g.getBoundingClientRect(),dx=mx-(r.left+r.width/2),dy=my-(r.top+r.height/2),d=Math.hypot(dx,dy)||1,s=+g.dataset.s;g.querySelector(".cb").style.transform="rotate("+s*Math.max(-28,Math.min(28,dy/9))+"deg)";g.querySelector(".pup").style.transform="translate("+dx/d*3*s+"px,"+dy/d*2+"px)"})}
+addEventListener("pointermove",e=>{mx=e.clientX;my=e.clientY;aim();const n=Date.now();if(n-sv>800&&!S.over){sv=n;tone(250,.22,"sawtooth",.08);tone(1100,.05,"square",.03)}});
+setInterval(()=>{mx+=(Math.random()-.5)*14;aim()},3100);
+$("#mm").onclick=openScr;$("#mm").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openScr()}};$("#nav").onclick=openScr;$("#back").onclick=back;
+addEventListener("keydown",e=>{if(e.key==="Escape"&&$("#scr").classList.contains("on"))back();if((e.key==="m"||e.key==="M")&&e.target.tagName!=="INPUT"&&!e.repeat)toggleMute()});
+$("#mute").onclick=toggleMute;$("#sy").onclick=()=>{aud();setMute(false)};$("#sn").onclick=()=>setMute(true);$("#go").onclick=begin;
+$("#rs").onclick=()=>{$("#end").style.cssText="";$("#ep").style.cssText="";init();begin()};
+[0,1,2].forEach(async i=>{const el=$("#m"+i);await sl(i*170);while(1){const p=MSG[Math.random()*MSG.length|0];el.textContent=p;fit(el,112,8.5);el.textContent="";for(let k=1;k<=p.length;k++){el.textContent=p.slice(0,k);await sl(16)}await sl(2500);for(let k=p.length;k>=0;k--){el.textContent=p.slice(0,k);await sl(9)}await sl(40)}});
+setInterval(()=>{if(opened&&!S.over&&!$("#scr").classList.contains("on")&&Math.random()<.6){const s=$("#stage");s.classList.add("blink");setTimeout(()=>s.classList.remove("blink"),360)}if(Math.random()<.06&&!S.over)tone(48,.8,"sine",.3)},8000);
+(async()=>{const box=$("#intro");for(const L of["DELETE ME","You are trapped","Your choices have consequences"]){const d=document.createElement("div");d.className="il"+(box.children.length?"":" ti");box.append(d);const w=L.split(" ");for(let k=1;k<=w.length;k++){d.textContent=w.slice(0,k).join(" ");await sl(RM?0:420)}await sl(RM?0:500)}})();
+init();$("#go").focus();
+</script></body></html>
